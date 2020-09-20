@@ -1,18 +1,18 @@
 package items;
 
 import dice.*;
+import player.SlotType;
 
-public abstract class Weapon implements Equippable{
+import java.util.List;
+
+public abstract class AbstractWeapon implements Equippable{
     public String weaponName;
     public String weaponDescription;
     Dice RollDiceWeapon ;
     public DamageType DamageTypeWeapon;
 
-    public Weapon(String weaponName, String weaponDescription, int numberDicesEdges, int numberOfDices, int diceBonus, DamageType DamageTypeWeapon){
-        RollDiceWeapon = new Dice();
-        RollDiceWeapon.numberDicesEdges = numberDicesEdges;
-        RollDiceWeapon.numberOfDices = numberOfDices;
-        RollDiceWeapon.diceBonus = diceBonus;
+    public AbstractWeapon(String weaponName, String weaponDescription, Dice rollDiceWeapon, DamageType DamageTypeWeapon){
+        RollDiceWeapon = rollDiceWeapon;
         this.weaponName = weaponName;
         this.weaponDescription = weaponDescription;
         this.DamageTypeWeapon = DamageTypeWeapon;
@@ -29,17 +29,27 @@ public abstract class Weapon implements Equippable{
         return weaponDescription;
     }
     public int getRollDiceWeaponEdges() {
-        return RollDiceWeapon.numberDicesEdges;
+        return RollDiceWeapon.getNumberDicesEdges();
     }
     public int getRollDiceWeaponNum() {
-        return RollDiceWeapon.numberOfDices;
+        return RollDiceWeapon.getNumberOfDices();
     }
 
     public int getRollDiceWeaponBonus() {
-        return RollDiceWeapon.diceBonus;
+        return RollDiceWeapon.getDiceBonus();
     }
     public int hitDamageWeapon(){
         RollDiceWeapon.roll();
-        return RollDiceWeapon.result;
+        return RollDiceWeapon.getResult();
     }
+
+
+    @Override
+    public abstract SlotType getSlotType();
+
+    @Override
+    public abstract List<ItemEffect> getItemEffects();
+
+    @Override
+    public abstract String getItemName() ;
 }

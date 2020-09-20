@@ -1,15 +1,16 @@
 package items;
 
+import dice.Dice;
 import player.SlotType;
 
 import java.util.List;
 
-public class RelicOfTheAncients  extends Weapon {
+public class RelicOfTheAncients  extends AbstractWeapon {
     private final String itemName = "Relic Of The Ancients";
     private List<ItemEffect> itemEffectsList = List.of(new ItemEffect(EffectType.HP_BOOST, 80), new ItemEffect(EffectType.DAMAGE_BOOST, 42));;
 
-    public RelicOfTheAncients(String weaponName, String weaponDescription, int numberDicesEdges, int numberOfDices, int diceBonus, DamageType DamageTypeWeapon) {
-        super(weaponName, weaponDescription, numberDicesEdges, numberOfDices, diceBonus, DamageTypeWeapon);
+    public RelicOfTheAncients(String weaponName, String weaponDescription,  Dice dice, DamageType DamageTypeWeapon) {
+        super(weaponName, weaponDescription, dice, DamageTypeWeapon);
     }
 
     public String getItemName() {
