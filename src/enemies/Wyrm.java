@@ -2,7 +2,6 @@ package enemies;
 
 import dice.Dice;
 import items.AbstractWeapon;
-import items.DamageType;
 import items.EnemyWeapon;
 
 import java.util.List;
@@ -10,14 +9,14 @@ import java.util.List;
 
 
 public class Wyrm extends AbstractEnemy {
-    public static final AbstractWeapon wyrmWeapon = new EnemyWeapon("wyrmWeapon", "Feeble sword",new Dice(2,6, 10), DamageType.SLASHING) ;
+    public static final AbstractWeapon wyrmWeapon = new EnemyWeapon("wyrmWeapon", "Feeble sword",new Dice(2,6, 10)) ;
 
     public Wyrm(){
 
         super(List.of(5,6),"Wyrm", 80, wyrmWeapon, 200, 5 );
     };
 
-    public int calculateDamageTaken(DamageType DamageType, int WeaponDamage){
+    public int calculateDamageTaken( int WeaponDamage){
         return WeaponDamage;
     };
 }

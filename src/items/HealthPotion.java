@@ -2,10 +2,11 @@ package items;
 
 import java.util.List;
 
-public class MinorHealthPotion implements Usable {
-    private final String itemName = "Minor Health Potion";
+public class HealthPotion implements Usable {
+
+    private final String itemName = "Health Potion";
     private int usesLeft = 1;
-    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.HP_REPLENISH, 5));;
+    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.HP_REPLENISH, 20));;
 
     public String getItemName() {
         return itemName;

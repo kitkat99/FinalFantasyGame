@@ -1,5 +1,6 @@
 package player;
 
+import Entity.Entity;
 import items.*;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractPlayer {
+public abstract class AbstractPlayer implements Entity {
     private String playerName;
     private int hitPoints;
     private int manaPoints;
@@ -46,6 +47,12 @@ public abstract class AbstractPlayer {
         this.baseStrength = baseStrength;
         this.hitPoints = hitPoints;
         this.manaPoints = manaPoints;
+        playerSlotList = setPlayerSlotList();
+    }
+
+
+    public List<Slot> setPlayerSlotList() {
+        return List.of(new Slot(SlotType.CHEST, 1), new Slot(SlotType.NECK, 1), new Slot(SlotType.HAND, 2), new Slot(SlotType.FINGER, 10), new Slot(SlotType.LEGS, 2));
     }
 
     public int getLevel(int experiencePoints) {
@@ -89,8 +96,6 @@ public abstract class AbstractPlayer {
     }
 
     public abstract LevelBonus  levelBonusMap(int level) ;
-
-    public abstract List<Slot> setPlayerSlotList();
 
     public void pickUp(Item item) {
         Inventory.add(item);
@@ -144,21 +149,40 @@ public abstract class AbstractPlayer {
         return acc;
     }
 
-    public abstract int getLevelHP();
+    public int getLevelHP() {
+        return levelBonusMap(getLevel(getExperiencePoints())).getHP();
+    }
 
-    public abstract int getLevelMP();
+    public int getLevelMP() {
+        return levelBonusMap(getLevel(getExperiencePoints())).getMP();
+    }
 
-    public abstract int getLevelInt();
+    public int getLevelInt() {
+        return levelBonusMap(getLevel(getExperiencePoints())).getInt();
+    }
 
-    public abstract int getLevelStr();
+    public int getLevelStr() {
+        return levelBonusMap(getLevel(getExperiencePoints())).getStr();
+    }
 
-    public abstract int getIntelligence();
+    public int getIntelligence() {
+        return getBaseIntelligence() + getLevelInt() + getBoostfromEquippedItems(EffectType.INTELLECT_BOOST);
+    }
 
-    public abstract int getStrength();
+    public int getStrength() {
+        return getBaseStrength() + getLevelStr() + getBoostfromEquippedItems(EffectType.STRENGTH_BOOST);
+    }
 
-    public abstract int getMaxHP();
 
-    public abstract int getMaxMana();
+    public int getMaxHP() {
+        return getHitPoints() + getLevelHP() + getBoostfromEquippedItems(EffectType.HP_BOOST);
+    }
+
+
+    public int getMaxMana() {
+        return getManaPoints() + getLevelMP() + getBoostfromEquippedItems(EffectType.MANA_BOOST);
+    }
+
 
     public abstract int getAttackDamage();
 

@@ -16,4 +16,7 @@ public class ItemEffect {
     public int getAmountEffect() {
         return amountEffect;
     }
+
+    @Override
+    public String toString(){ return  effectType + " "+ amountEffect +" ";}
 }

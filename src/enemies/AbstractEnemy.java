@@ -1,10 +1,11 @@
 package enemies;
 
+import Entity.Entity;
 import items.*;
 
 import java.util.List;
 
-public abstract class AbstractEnemy {
+public abstract class AbstractEnemy implements Entity {
     private String enemyName;
     private int hitPoints;
     private AbstractWeapon Weapon;
@@ -41,7 +42,7 @@ public abstract class AbstractEnemy {
         return Weapon;
     }
 
-    public abstract int calculateDamageTaken(DamageType DamageType, int WeaponDamage);
+    public abstract int calculateDamageTaken( int WeaponDamage);
 
     @Override
     public String toString() {
