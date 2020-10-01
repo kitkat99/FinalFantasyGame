@@ -2,6 +2,7 @@ package enemies;
 import dice.Dice;
 import items.*;
 
+import java.awt.*;
 import java.util.List;
 
 public class OrcGrunt extends AbstractEnemy {
@@ -9,7 +10,7 @@ public class OrcGrunt extends AbstractEnemy {
     public static final AbstractWeapon orcWeapon = new EnemyWeapon("orcWeapon", "Feeble mace",new Dice(0,0, 5));
 
     public OrcGrunt(){
-        super(List.of(3,4,5),"OrcGrunt", 40, orcWeapon, 100,6);
+        super(List.of(3,4,5),"OrcGrunt", 40, orcWeapon, 100,6, new Color(250, 110, 53));
     };
     public int calculateDamageTaken( int WeaponDamage){
             return WeaponDamage;

@@ -3,6 +3,7 @@ package enemies;
 import Entity.Entity;
 import items.*;
 
+import java.awt.*;
 import java.util.List;
 
 public abstract class AbstractEnemy implements Entity {
@@ -12,14 +13,24 @@ public abstract class AbstractEnemy implements Entity {
     private int enemyXP;
     private int visibilityRadius;
     private List<Integer> levelAppearance;
+    private Color color;
 
-    public AbstractEnemy(List<Integer> levelAppearance, String enemyName, int hitPoints, AbstractWeapon Weapon, int enemyXP , int visibilityRadius){
+    public AbstractEnemy(List<Integer> levelAppearance, String enemyName, int hitPoints, AbstractWeapon Weapon, int enemyXP , int visibilityRadius, Color tempColor){
         this.enemyName = enemyName;
         this.hitPoints = hitPoints;
         this.Weapon = Weapon;
         this.enemyXP = enemyXP;
         this.visibilityRadius = visibilityRadius;
         this.levelAppearance=levelAppearance;
+        this.color = tempColor;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public int getVisibilityRadius() {
+        return visibilityRadius;
     }
 
     public List<Integer> getLevelAppearance() {

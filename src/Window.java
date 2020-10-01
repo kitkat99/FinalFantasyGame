@@ -1,3 +1,8 @@
+import enemies.AbstractEnemy;
+import generator.Generator;
+import items.Equippable;
+import items.Item;
+import player.Slot;
 import tower.*;
 import player.AbstractPlayer;
 import player.Warrior;
@@ -6,6 +11,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Window extends JFrame {
@@ -19,7 +28,7 @@ public class Window extends JFrame {
     static JLabel map;
     static Tower tower;
     static JTextArea textArea;
-    static AbstractPlayer player = new Warrior("balls");
+    static AbstractPlayer player = new Warrior("Katerina");
 
     public Window() {
         super("GridLayoutTest");
@@ -45,11 +54,14 @@ public class Window extends JFrame {
 
         //create PlayerInfo panel
         JPanel PlayerInfo = new JPanel(new BorderLayout(4, 4));
-        var playerData = new JLabel();
+        var playerData = new playerLabel();
         playerData.setHorizontalAlignment(SwingConstants.LEFT);
         playerData.setVerticalAlignment(SwingConstants.CENTER);
-        playerData.setText("PlayerInfo");
+        playerData.setPlayer(player);
+        this.addPropertyChangeListener("downloadPanel", new playerListener(playerData));
+
         PlayerInfo.add(playerData);
+
 
         //split screen in right and left
         JSplitPane verticalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -111,6 +123,19 @@ public class Window extends JFrame {
                     case 'S':
                     case 's':
                         changePosition(0, 1);
+                        break;
+                    case 'P':
+                    case 'p':
+                        swapWeapon();
+                        break;
+                    case 'H':
+                    case 'h':
+                        player.useHealthPotion();
+                        break;
+                    case 'M':
+                    case 'm':
+                        player.useManaPotion();
+                        break;
                     default:
                         break;
                 }
@@ -150,7 +175,24 @@ public class Window extends JFrame {
                 }
                 if (tempTile instanceof Tile) {
                     floorBufferedImage.setPlayerCoordinates(newPosition.getCoordinateX(), newPosition.getCoordinateY(), player);
+                    if (tempTile.hasItem() == true) {
+                        if (tempTile.IsItemPotion()) {
+                            textArea.append("\n You have found " + tempTile.getItemDescription());
+                            player.pickUp(tempTile.getItem());
+                            tempTile.setItem(null);
+                            player.printInventory();
+                        } else if (tempTile.IsItemEquippable()) {
+                            textArea.append("\n You have found " + tempTile.getItemDescription() + ". Press P to swap Weapons");
+                        }
+                    }
+                    if (calculateProbability(player.getCurrentHitPoints(), player.getMaxHP())) {
+                        AbstractEnemy enemy = Generator.generateEnemy(player.getLevel(player.getExperiencePoints()));
+                        AbstractBlock enemyTile = calculateEnemyCoordinates(player, enemy);
+                        enemyTile.setOccupant(enemy);
+                        System.out.println(enemyTile);
+                    }
                 }
+
                 floorBufferedImage.drawFloor();
                 map.setIcon(floorBufferedImage.getIcon());
                 leftPanel.revalidate();
@@ -167,10 +209,99 @@ public class Window extends JFrame {
         return isLegalXMovement && isLegalYMovement;
     }
 
+
+    public void swapWeapon() {
+        AbstractBlock tempTile;
+        var newPosition = new Coordinates(floorBufferedImage.getPlayerCoordinates().getCoordinateX(), floorBufferedImage.getPlayerCoordinates().getCoordinateY());
+        tempTile = floorBufferedImage.getFloor()[newPosition.getCoordinateX()][newPosition.getCoordinateY()];
+        if (tempTile.hasItem() == true) {
+
+            if (tempTile.IsItemEquippable()) {
+                textArea.append("\n " + player.playerStats());
+                boolean isEquipped = false;
+                Item tempItem = null;
+                for (Slot slot : player.getPlayerSlotList()) {
+                    if (!player.getEquippedItems().isEmpty()) {
+                        tempItem = player.getEquippedItems().get(0);
+                        slot.remove(tempItem);
+                        player.drop(tempItem);
+
+                    }
+                    if ((((Equippable) tempTile.getItem()).getSlotType() == slot.getSlotType())) {
+                        slot.equip(tempTile.getItem());
+                        isEquipped = true;
+                        break;
+                    }
+                }
+                if (!isEquipped) {
+                    textArea.append("\n Item doesn't fit in Player's Slot ");
+                }
+                tempTile.setItem(tempItem);
+                textArea.append("\n " + player.playerStats());
+            }
+        }
+    }
+
+    public boolean calculateProbability(int hp, int hpMax) {
+        if (new Random().nextDouble() <= (hp / hpMax) * 0.2)
+            return true;
+        return false;
+    }
+
+    public AbstractBlock calculateEnemyCoordinates(AbstractPlayer player, AbstractEnemy enemy) {
+        int maxRadiusforEnemyCircle = Math.max(player.getPlayerVisibility(), enemy.getVisibilityRadius()) + 1;
+        ArrayList<AbstractBlock> possibleEnemyTilesList = calculateVisibleTiles(maxRadiusforEnemyCircle);
+        return possibleEnemyTilesList.stream().filter(e -> e instanceof Tile && e.isOccupiedByEnemy() != true).findAny().orElse(null);
+    }
+
+    public ArrayList<AbstractBlock> calculateVisibleTiles(int maxRadius) {
+        ArrayList<AbstractBlock> possibleEnemyTilesList = new ArrayList<AbstractBlock>();
+        Coordinates playerCoordinates = tower.getCurrentFloor().getPlayerCoordinates();
+        if (playerCoordinates != null) {
+            for (int i = 0; i < tower.getCurrentFloor().getFloor().length; i++) {
+                for (int j = 0; j < tower.getCurrentFloor().getFloor()[j].length; j++) {
+                    if ((Math.abs(playerCoordinates.getCoordinateX() - tower.getCurrentFloor().getFloor()[i][j].getCoordinates().getCoordinateX())) +
+                            ((Math.abs(playerCoordinates.getCoordinateY() - tower.getCurrentFloor().getFloor()[i][j].getCoordinates().getCoordinateY()))) == maxRadius) {
+                        possibleEnemyTilesList.add(tower.getCurrentFloor().getFloor()[i][j]);
+                    }
+                }
+            }
+        }
+        System.out.println(possibleEnemyTilesList);
+        return possibleEnemyTilesList;
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             var window = new Window();
 
         });
+    }
+}
+
+class playerLabel extends JLabel {
+    private AbstractPlayer player;
+
+    public void setPlayer(AbstractPlayer player) {
+        this.player = player;
+        setText(player == null ? null : player.playerStats());
+    }
+
+    public AbstractPlayer getPlayer() {
+        return player;
+    }
+}
+
+class playerListener implements PropertyChangeListener {
+    private playerLabel playerLabel;
+
+    public playerListener(playerLabel playerLabel) {
+        this.playerLabel = playerLabel;
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent player) {
+        AbstractPlayer value = (AbstractPlayer) player.getNewValue();
+        playerLabel.setPlayer(value);
     }
 }

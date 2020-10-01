@@ -4,26 +4,47 @@ import Entity.Entity;
 import items.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractPlayer implements Entity {
     private String playerName;
-    private int hitPoints;
-    private int manaPoints;
+    private int baseHitPoints;
+    private int baseManaPoints;
     private int baseStrength;
     private int baseIntelligence;
     private int experiencePoints;
     private List<Item> Inventory = new ArrayList<>();
     public List<Slot> playerSlotList = new ArrayList<>();
+    private int currentHitPoints = getMaxHP();
+    private int currentManaPoints = getMaxMana();
+    private static final int playerVisibility = 6;
+
+    public static int getPlayerVisibility() {
+        return playerVisibility;
+    }
+
+    public int getCurrentManaPoints() {
+        return currentManaPoints;
+    }
+
+    public void setCurrentManaPoints(int currentManaPoints) {
+        this.currentManaPoints = currentManaPoints;
+    }
+
+    public int getCurrentHitPoints() {
+        return currentHitPoints;
+    }
+
+    public void setCurrentHitPoints(int currentHitPoints) {
+        this.currentHitPoints = currentHitPoints;
+    }
 
     public String getPlayerName() {
         return playerName;
     }
 
-    public int getHitPoints() {
-        return hitPoints;
+    public int getBaseHitPoints() {
+        return baseHitPoints;
     }
 
     public int getBaseIntelligence() {
@@ -38,15 +59,15 @@ public abstract class AbstractPlayer implements Entity {
         return experiencePoints;
     }
 
-    public int getManaPoints() {
-        return manaPoints;
+    public int getBaseManaPoints() {
+        return baseManaPoints;
     }
 
-    public AbstractPlayer(int baseStrength, int baseIntelligence, int hitPoints, int manaPoints) {
+    public AbstractPlayer(int baseStrength, int baseIntelligence, int baseHitPoints, int baseManaPoints) {
         this.baseIntelligence = baseIntelligence;
         this.baseStrength = baseStrength;
-        this.hitPoints = hitPoints;
-        this.manaPoints = manaPoints;
+        this.baseHitPoints = baseHitPoints;
+        this.baseManaPoints = baseManaPoints;
         playerSlotList = setPlayerSlotList();
     }
 
@@ -70,32 +91,29 @@ public abstract class AbstractPlayer implements Entity {
         }
         return counter;
     }
-    public void rest(){
-        if(getMaxHP() - getHitPoints()>4){
-            setHitPoints(getHitPoints() + 4);
-        }
-        else if (getMaxHP() - getHitPoints()<4 && getMaxHP() - getHitPoints()>0){
-            setHitPoints(getMaxHP());
-        }
-        if(getMaxMana() - getManaPoints()>4){
-            setManaPoints(getManaPoints() + 4);
-        }
-        else if (getMaxMana() - getManaPoints()<4 && getMaxMana() - getManaPoints()>0){
-            setManaPoints(getMaxMana());
-        }
 
-
+    public void rest() {
+        if (getMaxHP() - getBaseHitPoints() > 4) {
+            setBaseHitPoints(getBaseHitPoints() + 4);
+        } else if (getMaxHP() - getBaseHitPoints() < 4 && getMaxHP() - getBaseHitPoints() > 0) {
+            setBaseHitPoints(getMaxHP());
+        }
+        if (getMaxMana() - getBaseManaPoints() > 4) {
+            setBaseManaPoints(getBaseManaPoints() + 4);
+        } else if (getMaxMana() - getBaseManaPoints() < 4 && getMaxMana() - getBaseManaPoints() > 0) {
+            setBaseManaPoints(getMaxMana());
+        }
     }
 
-    public void setManaPoints(int manaPoints) {
-        this.manaPoints = manaPoints;
+    public void setBaseManaPoints(int baseManaPoints) {
+        this.baseManaPoints = baseManaPoints;
     }
 
-    public void setHitPoints(int hitPoints) {
-        this.hitPoints = hitPoints;
+    public void setBaseHitPoints(int baseHitPoints) {
+        this.baseHitPoints = baseHitPoints;
     }
 
-    public abstract LevelBonus  levelBonusMap(int level) ;
+    public abstract LevelBonus levelBonusMap(int level);
 
     public void pickUp(Item item) {
         Inventory.add(item);
@@ -106,6 +124,33 @@ public abstract class AbstractPlayer implements Entity {
             Inventory.remove(item);
         else {
             System.out.println("Cannot drop the item, it is equipped");
+        }
+    }
+
+    public void useHealthPotion() {
+        HealthPotion healthPotion = (HealthPotion) Inventory.stream().filter(e -> e instanceof HealthPotion).findAny().orElse(null);
+        if (healthPotion != null) {
+            System.out.println(playerStats());
+            if (getMaxHP() - getCurrentHitPoints() > healthPotion.use()) {
+                setCurrentHitPoints(getCurrentHitPoints() + healthPotion.use());
+            } else if (getMaxHP() -getCurrentHitPoints() < healthPotion.use() && getMaxHP() - getCurrentHitPoints() > 0) {
+                setCurrentHitPoints(getMaxHP());
+            }
+            Inventory.remove(healthPotion);
+            System.out.println(playerStats());
+        }
+    }
+    public void useManaPotion() {
+        HealthPotion manaPotion = (HealthPotion) Inventory.stream().filter(e -> e instanceof ManaPotion).findAny().orElse(null);
+        if (manaPotion != null) {
+            System.out.println(playerStats());
+            if (getMaxMana() - getCurrentManaPoints() > manaPotion.use()) {
+                setCurrentManaPoints(getCurrentManaPoints() + manaPotion.use());
+            } else if (getMaxMana() -getCurrentManaPoints() < manaPotion.use() && getMaxMana() - getCurrentManaPoints() > 0) {
+                setCurrentManaPoints(getMaxMana());
+            }
+            Inventory.remove(manaPotion);
+            System.out.println(playerStats());
         }
     }
 
@@ -120,7 +165,7 @@ public abstract class AbstractPlayer implements Entity {
     }
 
     public void printInventory() {
-        System.out.println("Items in "+getPlayerName()+" Inventory");
+        System.out.println("Items in " + getPlayerName() + " Inventory");
         for (Item i : Inventory) {
             System.out.println(i.getItemName());
         }
@@ -175,12 +220,12 @@ public abstract class AbstractPlayer implements Entity {
 
 
     public int getMaxHP() {
-        return getHitPoints() + getLevelHP() + getBoostfromEquippedItems(EffectType.HP_BOOST);
+        return getBaseHitPoints() + getLevelHP() + getBoostfromEquippedItems(EffectType.HP_BOOST);
     }
 
 
     public int getMaxMana() {
-        return getManaPoints() + getLevelMP() + getBoostfromEquippedItems(EffectType.MANA_BOOST);
+        return getBaseManaPoints() + getLevelMP() + getBoostfromEquippedItems(EffectType.MANA_BOOST);
     }
 
 
@@ -195,11 +240,13 @@ public abstract class AbstractPlayer implements Entity {
     }
 
     public String playerStats() {
-        return " Hit Points: " + getMaxHP()
-                + " Mana Points: " + getMaxMana()
-                + " Strength: " + getStrength()
-                + " Damage: " + getAttackDamage()
-                + " Intelligence: " + getIntelligence();
+
+        return "<html>Hit Points: " + getMaxHP()+"<br/>" +
+                "Mana Points: " + getMaxMana()+"<br/> " +
+                "Strength: " + getStrength()+"<br/> " +
+                "Damage: " + getAttackDamage()+"<br/> " +
+                "Intelligence: " + getIntelligence()+"<br/> " +
+                "</html>";
 
     }
 

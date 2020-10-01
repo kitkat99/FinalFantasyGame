@@ -3,7 +3,10 @@ package tower;
 import Entity.Entity;
 import enemies.AbstractEnemy;
 
+import items.Equippable;
 import items.Item;
+import items.Trap;
+import items.Usable;
 import player.AbstractPlayer;
 
 
@@ -53,6 +56,31 @@ public abstract class AbstractBlock {
     }
     public boolean hasItem(){
         return item != null;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+    public String getItemDescription(){
+        return item.getItemName();
+    }
+
+    public boolean IsItemPotion(){
+        if (item instanceof Usable){
+            if(item instanceof Trap )
+                return false;
+            else
+                return true;
+        }
+        else
+            return false;
+    }
+    public boolean IsItemEquippable(){
+        if (item instanceof Equippable){
+            return true;
+        }
+        else
+            return false;
     }
 
     public void setItem(Item item) {

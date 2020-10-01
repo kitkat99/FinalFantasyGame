@@ -4,6 +4,7 @@ import dice.Dice;
 import items.AbstractWeapon;
 import items.EnemyWeapon;
 
+import java.awt.*;
 import java.util.List;
 
 public class Dragon extends AbstractEnemy {
@@ -11,7 +12,7 @@ public class Dragon extends AbstractEnemy {
 
     public Dragon(){
 
-        super(List.of(1,2,3,4,5,6),"Vampire", 1500, dragonWeapon, 0, 10 );
+        super(List.of(1,2,3,4,5,6),"Vampire", 1500, dragonWeapon, 0, 10 ,new Color(22, 18, 250));
     };
 
     public int calculateDamageTaken( int WeaponDamage){

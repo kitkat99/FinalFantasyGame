@@ -4,6 +4,7 @@ import dice.Dice;
 import items.AbstractWeapon;
 import items.EnemyWeapon;
 
+import java.awt.*;
 import java.util.List;
 
 public class GiantRat extends AbstractEnemy {
@@ -11,7 +12,7 @@ public class GiantRat extends AbstractEnemy {
 
     public GiantRat(){
 
-        super(List.of(1,2),"GiantRat", 5, giantRatWeapon, 30, 4 );
+        super(List.of(1,2),"GiantRat", 5, giantRatWeapon, 30, 4 ,new Color(36, 250, 234));
     };
 
     public int calculateDamageTaken( int WeaponDamage){

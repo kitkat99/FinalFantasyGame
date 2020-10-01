@@ -4,6 +4,7 @@ import dice.Dice;
 import items.AbstractWeapon;
 import items.EnemyWeapon;
 
+import java.awt.*;
 import java.util.List;
 //5-6 Wyrm 80 2d6+10 200 5
 
@@ -13,7 +14,7 @@ public class Wyrm extends AbstractEnemy {
 
     public Wyrm(){
 
-        super(List.of(5,6),"Wyrm", 80, wyrmWeapon, 200, 5 );
+        super(List.of(5,6),"Wyrm", 80, wyrmWeapon, 200, 5,new Color(250, 188, 24) );
     };
 
     public int calculateDamageTaken( int WeaponDamage){

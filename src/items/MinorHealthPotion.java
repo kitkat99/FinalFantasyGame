@@ -4,7 +4,6 @@ import java.util.List;
 
 public class MinorHealthPotion implements Usable {
     private final String itemName = "Minor Health Potion";
-    private int usesLeft = 1;
     private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.HP_REPLENISH, 5));;
 
     public String getItemName() {
@@ -12,13 +11,12 @@ public class MinorHealthPotion implements Usable {
     }
 
     @Override
-    public int usesLeft() {
-        return usesLeft;
-    }
-    @Override
-    public List<ItemEffect> use(){
-        usesLeft--;
-        return itemEffectsList;
+    public int use(){
+        int amountEffect = 0 ;
+        for (ItemEffect e : itemEffectsList) {
+            amountEffect = e.getAmountEffect();
+        }
+        return amountEffect;
     }
 
     @Override

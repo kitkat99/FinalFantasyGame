@@ -2,12 +2,14 @@ package tower;
 
 
 import Entity.Entity;
+import enemies.AbstractEnemy;
 import items.AbstractWeapon;
 import items.Item;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,7 +67,7 @@ public class Floor {
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[0].length; j++) {
                 if (floor[i][j].isOccupiedByPlayer()) {
-                    System.out.println(i + " " + j + "is occupied");
+                    //System.out.println(i + " " + j + "is occupied");
                     return floor[i][j].getCoordinates();
                 }
             }
@@ -77,7 +79,7 @@ public class Floor {
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[0].length; j++) {
                 if (floor[i][j].isOccupiedByPlayer()) {
-                    System.out.println(i + " " + j + "is occupied");
+                   // System.out.println(i + " " + j + "is occupied");
                     floor[i][j].setOccupant(null);
                 }
             }
@@ -134,6 +136,7 @@ public class Floor {
 
 
     public void drawFloor() {
+        ArrayList<AbstractBlock> visibleTiles = calculateVisibleTiles();
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[j].length; j++) {
                 if (floor[i][j] instanceof Wall) {
@@ -143,8 +146,13 @@ public class Floor {
                         drawEntrance(i, j);
                     } else if (floor[i][j] instanceof Tile) {
                         drawTile(i, j);
+                        if(visibleTiles.contains(floor[i][j]))
+                            drawVisibleByPlayerTiles(i, j);
                         if(floor[i][j].hasItem() == true){
                             drawItem(i, j);
+                        }
+                        if(floor[i][j].isOccupiedByEnemy() == true){
+                            drawEnemy(i, j, (AbstractEnemy) floor[i][j].getOccupant());
                         }
                     } else if (floor[i][j] instanceof Exit) {
                         drawExit(i, j);
@@ -162,6 +170,13 @@ public class Floor {
     private void drawTile(int i, int j) {
         g2.setColor(new Color(100, 60, 40));
         g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        g2.setColor(new Color(150, 60, 60));
+        g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
+    }
+
+    private void drawVisibleByPlayerTiles(int i, int j) {
+        g2.setColor(new Color(100, 60, 40));
+        g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         g2.setColor(new Color(180, 100, 100));
         g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
     }
@@ -173,6 +188,11 @@ public class Floor {
     private void drawItem(int i, int j) {
         g2.setColor(new Color(30, 250, 30));
         g2.fillRect(i * TILE_SIZE+TILE_SIZE-3, j * TILE_SIZE, 4, 4);
+    }
+    private void drawEnemy(int i, int j, AbstractEnemy enemy) {
+        g2.setColor(enemy.getColor());
+        g2.fillArc(i * TILE_SIZE + 1, j * TILE_SIZE + 1,
+                TILE_SIZE - 3, TILE_SIZE - 3, 0, 360);
     }
 
     private void drawPlayer(int i, int j) {
@@ -252,5 +272,20 @@ public class Floor {
 
     public int randomgenenerator(int upperBound) {
         return (int) (Math.random() * ((upperBound) + 1));
+    }
+
+    public ArrayList<AbstractBlock> calculateVisibleTiles() {
+        ArrayList<AbstractBlock> visibleTilesList = new ArrayList<AbstractBlock>();
+        if(getPlayerCoordinates() != null) {
+            for (int i = 0; i < floor.length; i++) {
+                for (int j = 0; j < floor[j].length; j++) {
+                    if ((Math.abs(getPlayerCoordinates().getCoordinateX() - floor[i][j].getCoordinates().getCoordinateX())) +
+                            ((Math.abs(getPlayerCoordinates().getCoordinateY() - floor[i][j].getCoordinates().getCoordinateY()))) < 6) {
+                        visibleTilesList.add(floor[i][j]);
+                    }
+                }
+            }
+        }
+        return visibleTilesList;
     }
 }
