@@ -20,6 +20,10 @@ public abstract class AbstractBlock {
         return Coordinates;
     }
 
+    public void setCoordinates(tower.Coordinates coordinates) {
+        Coordinates = coordinates;
+    }
+
     public void setOccupant(Entity occupant) {
         Occupant = occupant;
     }

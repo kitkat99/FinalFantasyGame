@@ -15,8 +15,8 @@ public class EnemyWeapon extends AbstractWeapon {
 
     @Override
     public int hitDamageWeapon() {
-        RollDiceWeapon.roll();
-        return RollDiceWeapon.getResult();
+
+        return  RollDiceWeapon.roll();
     }
 
     public String getItemName() {

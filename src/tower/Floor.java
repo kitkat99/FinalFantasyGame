@@ -3,7 +3,6 @@ package tower;
 
 import Entity.Entity;
 import enemies.AbstractEnemy;
-import items.AbstractWeapon;
 import items.Item;
 
 import javax.swing.*;
@@ -63,10 +62,10 @@ public class Floor {
         return starty;
     }
 
-    public Coordinates getPlayerCoordinates() {
+    public Coordinates getEntityCoordinates(Entity entity) {
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[0].length; j++) {
-                if (floor[i][j].isOccupiedByPlayer()) {
+                if (floor[i][j].getOccupant() != null && floor[i][j].getOccupant().equals(entity)) {
                     //System.out.println(i + " " + j + "is occupied");
                     return floor[i][j].getCoordinates();
                 }
@@ -75,16 +74,28 @@ public class Floor {
         return null;
     }
 
-    public void setPlayerCoordinates(int x, int y, Entity player) {
+    public void setEntityCoordinates(int x, int y, Entity entity) {
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[0].length; j++) {
-                if (floor[i][j].isOccupiedByPlayer()) {
+                if (floor[i][j].getOccupant() != null && floor[i][j].getOccupant().equals(entity)) {
                    // System.out.println(i + " " + j + "is occupied");
                     floor[i][j].setOccupant(null);
                 }
             }
         }
-        floor[x][y].setOccupant(player);
+        floor[x][y].setOccupant(entity);
+    }
+
+    public List<AbstractBlock> getListOfFloorEnemyTiles() {
+        List<AbstractBlock> listOfFloorEnemyTiles = new ArrayList<>();
+        for (int i = 0; i < floor.length; i++) {
+            for (int j = 0; j < floor[0].length; j++) {
+                if (floor[i][j].getOccupant() != null && floor[i][j].getOccupant() instanceof AbstractEnemy) {
+                    listOfFloorEnemyTiles.add( floor[i][j]);
+                }
+            }
+        }
+        return listOfFloorEnemyTiles;
     }
 
     public AbstractBlock getEntranceBlock() {
@@ -131,12 +142,12 @@ public class Floor {
         FloorCounter = FloorLevel;
         generateFloor();
         addExit();
-        drawFloor();
+        drawFloor(null);
     }
 
 
-    public void drawFloor() {
-        ArrayList<AbstractBlock> visibleTiles = calculateVisibleTiles();
+    public void drawFloor(Entity entity) {
+        ArrayList<AbstractBlock> visibleTiles = calculateVisibleTiles(entity);
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[j].length; j++) {
                 if (floor[i][j] instanceof Wall) {
@@ -274,13 +285,13 @@ public class Floor {
         return (int) (Math.random() * ((upperBound) + 1));
     }
 
-    public ArrayList<AbstractBlock> calculateVisibleTiles() {
+    public ArrayList<AbstractBlock> calculateVisibleTiles(Entity entity) {
         ArrayList<AbstractBlock> visibleTilesList = new ArrayList<AbstractBlock>();
-        if(getPlayerCoordinates() != null) {
+        if(getEntityCoordinates(entity) != null) {
             for (int i = 0; i < floor.length; i++) {
                 for (int j = 0; j < floor[j].length; j++) {
-                    if ((Math.abs(getPlayerCoordinates().getCoordinateX() - floor[i][j].getCoordinates().getCoordinateX())) +
-                            ((Math.abs(getPlayerCoordinates().getCoordinateY() - floor[i][j].getCoordinates().getCoordinateY()))) < 6) {
+                    if ((Math.abs(getEntityCoordinates(entity).getCoordinateX() - floor[i][j].getCoordinates().getCoordinateX())) +
+                            ((Math.abs(getEntityCoordinates(entity).getCoordinateY() - floor[i][j].getCoordinates().getCoordinateY()))) < 6) {
                         visibleTilesList.add(floor[i][j]);
                     }
                 }

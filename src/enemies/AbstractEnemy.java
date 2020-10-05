@@ -29,6 +29,10 @@ public abstract class AbstractEnemy implements Entity {
         return color;
     }
 
+    public int getEnemyXP() {
+        return enemyXP;
+    }
+
     public int getVisibilityRadius() {
         return visibilityRadius;
     }

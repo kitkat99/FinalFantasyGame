@@ -2,11 +2,13 @@ package player;
 
 import Entity.Entity;
 import items.*;
+import observers.Observer;
+import observers.Subject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractPlayer implements Entity {
+public abstract class AbstractPlayer implements Entity, Subject {
     private String playerName;
     private int baseHitPoints;
     private int baseManaPoints;
@@ -29,6 +31,7 @@ public abstract class AbstractPlayer implements Entity {
 
     public void setCurrentManaPoints(int currentManaPoints) {
         this.currentManaPoints = currentManaPoints;
+        observers.forEach( x -> notifyObserver(x));
     }
 
     public int getCurrentHitPoints() {
@@ -37,6 +40,7 @@ public abstract class AbstractPlayer implements Entity {
 
     public void setCurrentHitPoints(int currentHitPoints) {
         this.currentHitPoints = currentHitPoints;
+        observers.forEach( x -> notifyObserver(x));
     }
 
     public String getPlayerName() {
@@ -69,6 +73,7 @@ public abstract class AbstractPlayer implements Entity {
         this.baseHitPoints = baseHitPoints;
         this.baseManaPoints = baseManaPoints;
         playerSlotList = setPlayerSlotList();
+        observers = new ArrayList<Observer>();
     }
 
 
@@ -93,16 +98,17 @@ public abstract class AbstractPlayer implements Entity {
     }
 
     public void rest() {
-        if (getMaxHP() - getBaseHitPoints() > 4) {
-            setBaseHitPoints(getBaseHitPoints() + 4);
-        } else if (getMaxHP() - getBaseHitPoints() < 4 && getMaxHP() - getBaseHitPoints() > 0) {
-            setBaseHitPoints(getMaxHP());
+        if (getMaxHP() - getCurrentHitPoints() > 4) {
+            setCurrentHitPoints(getCurrentHitPoints() + 4);
+        } else if (getMaxHP() - getCurrentHitPoints() < 4 && getMaxHP() - getCurrentHitPoints() > 0) {
+            setCurrentHitPoints(getMaxHP());
         }
-        if (getMaxMana() - getBaseManaPoints() > 4) {
-            setBaseManaPoints(getBaseManaPoints() + 4);
-        } else if (getMaxMana() - getBaseManaPoints() < 4 && getMaxMana() - getBaseManaPoints() > 0) {
-            setBaseManaPoints(getMaxMana());
+        if (getMaxMana() - getCurrentManaPoints() > 4) {
+            setCurrentManaPoints(getCurrentManaPoints() + 4);
+        } else if (getMaxMana() - getCurrentManaPoints() < 4 && getMaxMana() - getCurrentManaPoints() > 0) {
+            setCurrentManaPoints(getMaxMana());
         }
+        observers.forEach( x -> notifyObserver(x));
     }
 
     public void setBaseManaPoints(int baseManaPoints) {
@@ -117,6 +123,7 @@ public abstract class AbstractPlayer implements Entity {
 
     public void pickUp(Item item) {
         Inventory.add(item);
+        observers.forEach( x -> notifyObserver(x));
     }
 
     public void drop(Item item) {
@@ -125,6 +132,7 @@ public abstract class AbstractPlayer implements Entity {
         else {
             System.out.println("Cannot drop the item, it is equipped");
         }
+        observers.forEach( x -> notifyObserver(x));
     }
 
     public void useHealthPotion() {
@@ -139,6 +147,7 @@ public abstract class AbstractPlayer implements Entity {
             Inventory.remove(healthPotion);
             System.out.println(playerStats());
         }
+        observers.forEach( x -> notifyObserver(x));
     }
     public void useManaPotion() {
         HealthPotion manaPotion = (HealthPotion) Inventory.stream().filter(e -> e instanceof ManaPotion).findAny().orElse(null);
@@ -152,6 +161,7 @@ public abstract class AbstractPlayer implements Entity {
             Inventory.remove(manaPotion);
             System.out.println(playerStats());
         }
+        observers.forEach( x -> notifyObserver(x));
     }
 
     public boolean isItemEquipped(Item item) {
@@ -211,11 +221,11 @@ public abstract class AbstractPlayer implements Entity {
     }
 
     public int getIntelligence() {
-        return getBaseIntelligence() + getLevelInt() + getBoostfromEquippedItems(EffectType.INTELLECT_BOOST);
+        return getBaseIntelligence() + getLevelInt() ;
     }
 
     public int getStrength() {
-        return getBaseStrength() + getLevelStr() + getBoostfromEquippedItems(EffectType.STRENGTH_BOOST);
+        return getBaseStrength() + getLevelStr() ;
     }
 
 
@@ -233,16 +243,26 @@ public abstract class AbstractPlayer implements Entity {
 
     public void addXP(int XPoints) {
         experiencePoints += XPoints;
+        observers.forEach( x -> notifyObserver(x));
     }
 
     public void removeXP(int XPoints) {
         experiencePoints -= XPoints;
     }
 
+    @Override
+    public String toString() {
+        if(this instanceof Warrior)
+            return "Warrior";
+        else if(this instanceof Wizard)
+            return "Wizard";
+        return "";
+    }
+
     public String playerStats() {
 
-        return "<html>Hit Points: " + getMaxHP()+"<br/>" +
-                "Mana Points: " + getMaxMana()+"<br/> " +
+        return "<html>Hit Points: " + getCurrentHitPoints()+"<br/>" +
+                "Mana Points: " + getCurrentManaPoints()+"<br/> " +
                 "Strength: " + getStrength()+"<br/> " +
                 "Damage: " + getAttackDamage()+"<br/> " +
                 "Intelligence: " + getIntelligence()+"<br/> " +
@@ -257,4 +277,21 @@ public abstract class AbstractPlayer implements Entity {
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
+
+    private ArrayList<Observer> observers;
+
+
+
+    @Override
+    public void register(Observer newObserver) {
+        observers.add(newObserver);
+    }
+
+    @Override
+    public void notifyObserver(Observer o) {
+        for(Observer observer : observers){
+            observer.update(this);
+        }
+    }
+
 }

@@ -27,6 +27,6 @@ public class Warrior extends AbstractPlayer {
 
     @Override
     public int getAttackDamage() {
-        return getBoostfromEquippedItems(EffectType.STRENGTH_BOOST);
+        return getLevelStr() + getBoostfromEquippedItems(EffectType.STRENGTH_BOOST);
     }
 }

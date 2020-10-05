@@ -1,6 +1,8 @@
 package tower;
 
 
+import enemies.Dragon;
+import items.Item;
 import player.AbstractPlayer;
 
 
@@ -15,6 +17,7 @@ public class Tower {
     List<Floor> floors = new ArrayList<>();
 private AbstractPlayer player;
     Floor currentFloor;
+    Dragon dragon = new Dragon();
 
     public static int getNumberOfFloors() {
         return numberOfFloors;
@@ -69,8 +72,25 @@ private AbstractPlayer player;
             System.out.println("there is nothing below");
         }
         var tempFloor = floors.get(floors.indexOf(currentFloor));
+        tempFloor.getListOfFloorEnemyTiles().stream().filter(x -> !(x.getOccupant() instanceof Dragon)).forEach(e -> e.setOccupant(null));
         setCurrentFloor(floors.get(floors.indexOf(tempFloor) - 1));
+
     }
+
+//    public void
+//    {
+//
+//            int currentX = floors.get(9).randomgenenerator((int) (floors.get(9).X_DIMENSION - 1));
+//            int currentY = floors.get(9).randomgenenerator((int) (floors.get(9).Y_DIMENSION - 1));
+//            AbstractBlock tempBlock = floors.get(9).getFloor()[currentX][currentY];
+//            while(!(tempBlock instanceof Tile)){
+//                currentX = floors.get(9).randomgenenerator((int) (floors.get(9).X_DIMENSION - 1));
+//                currentY = floors.get(9).randomgenenerator((int) (floors.get(9).Y_DIMENSION - 1));
+//                tempBlock = floors.get(9).getFloor()[currentX][currentY];
+//            }
+//        floors.get(9).setEntityCoordinates(currentX,currentY, dragon);
+//
+//    }
 
     public void goToNextFloor() {
         try {
@@ -82,6 +102,7 @@ private AbstractPlayer player;
             System.out.println("there is nothing above");
         }
         var tempFloor = floors.get(floors.indexOf(currentFloor));
+        tempFloor.getListOfFloorEnemyTiles().stream().filter(x -> !(x.getOccupant() instanceof Dragon)).forEach(e -> e.setOccupant(null));
         setCurrentFloor(floors.get(floors.indexOf(tempFloor) + 1));
     }
 
