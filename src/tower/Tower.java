@@ -2,6 +2,7 @@ package tower;
 
 
 import enemies.Dragon;
+import generator.Generator;
 import items.Item;
 import player.AbstractPlayer;
 
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-import static generator.Generator.createItemList;
+import static generator.Generator.*;
 
 public class Tower {
     private static final int numberOfFloors = 10;
@@ -112,11 +113,17 @@ private AbstractPlayer player;
         currentFloor.getEntranceBlock().setOccupant(player);
         this.player = player;
         generateItems();
+        generateTraps();
     }
 
     public void generateItems() {
         for (Floor floor : floors) {
             floor.setListOfFloorItems(createItemList(getFloorNumber(floor), player));
+        }
+    }
+    public void generateTraps() {
+        for (Floor floor : floors) {
+            floor.setListOfFloorItems(Generator.generateTraps());
         }
     }
 }

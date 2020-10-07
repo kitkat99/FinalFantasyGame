@@ -1,5 +1,6 @@
 import Entity.Entity;
 import enemies.AbstractEnemy;
+import enemies.Dragon;
 import generator.Generator;
 import items.*;
 import observers.playerObserver;
@@ -19,6 +20,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static generator.Generator.generatePotions;
+
 
 public class Window extends JFrame {
 
@@ -33,7 +36,7 @@ public class Window extends JFrame {
     static JTextArea textArea;
     static AbstractPlayer player = new Warrior("Katerina");
     static playerObserver playerData = new playerObserver(player);
-
+    ArrayList<AbstractBlock> listOfEnemyTiles = new ArrayList<>();
 
     public Window() {
         super("GridLayoutTest");
@@ -100,6 +103,7 @@ public class Window extends JFrame {
         );
         horizontalSplitPane.setBottomComponent(scrollPane);
         leftPanel.add(horizontalSplitPane, BorderLayout.CENTER);
+
         floorBufferedImage.drawFloor(player);
         map.setIcon(floorBufferedImage.getIcon());
         leftPanel.revalidate();
@@ -136,10 +140,16 @@ public class Window extends JFrame {
                         case 'H':
                         case 'h':
                             player.useHealthPotion();
+                            enemyAttack(createAttackableEnemiesList(player));
+                            decideIfEnemyMoves();
+                            repaint();
                             break;
                         case 'M':
                         case 'm':
                             player.useManaPotion();
+                            enemyAttack(createAttackableEnemiesList(player));
+                            decideIfEnemyMoves();
+                            repaint();
                             break;
                         case 'L':
                         case 'l':
@@ -148,6 +158,10 @@ public class Window extends JFrame {
                         case 'R':
                         case 'r':
                             player.rest();
+                            enemyAttack(createAttackableEnemiesList(player));
+                            decideIfEnemyMoves();
+                            createEnemy(  player ,  listOfEnemyTiles, 0.25);
+                            repaint();
                             break;
                         default:
                             break;
@@ -175,7 +189,6 @@ public class Window extends JFrame {
     public void changePosition(int x, int y) {
         AbstractBlock tempTile;
         var newPosition = new Coordinates(floorBufferedImage.getEntityCoordinates(player).getCoordinateX() + x, floorBufferedImage.getEntityCoordinates(player).getCoordinateY() + y);
-        ArrayList<AbstractBlock> listOfEnemyTiles = new ArrayList<>();
         if (isMovementValid(x, y, player)) {
             tempTile = floorBufferedImage.getFloor()[newPosition.getCoordinateX()][newPosition.getCoordinateY()];
             if (!tempTile.isWalkable() || tempTile == null) {
@@ -203,19 +216,17 @@ public class Window extends JFrame {
                             player.printInventory();
                         } else if (tempTile.IsItemEquippable()) {
                             textArea.append("\n You have found " + tempTile.getItemDescription() + ". Press P to swap Weapons");
+                        } else if(tempTile.getItem() instanceof Trap){
+                            textArea.append("\n You stepped on a " + tempTile.getItemDescription());
+                            player.useTrap((Trap) tempTile.getItem());
+                            tempTile.setItem(null);
+                            if(player.getCurrentHitPoints() <= 0){
+                                textArea.append("\nYou died");
+                            }
                         }
                     }
-                    List<AbstractBlock> movableEnemiesList = defineEnemiesWithinEnemyVisibilityRadius(floorBufferedImage.getListOfFloorEnemyTiles(), player);
-                    changeEnemyPosition(movableEnemiesList);
-                    if (calculateProbability(player.getCurrentHitPoints(), player.getMaxHP())) {
-                        AbstractEnemy enemy = Generator.generateEnemy(player.getLevel(player.getExperiencePoints()));
-                        AbstractBlock enemyTile = calculateEnemyCoordinates(player, enemy);
-                        enemyTile.setOccupant(enemy);
-
-                        listOfEnemyTiles.add(enemyTile);
-
-                        System.out.println(enemyTile);
-                    }
+                    decideIfEnemyMoves();
+                    createEnemy(player, listOfEnemyTiles, 0.2);
                 }
 
                 floorBufferedImage.drawFloor(player);
@@ -223,6 +234,20 @@ public class Window extends JFrame {
                 leftPanel.revalidate();
                 leftPanel.repaint();
             }
+        }
+    }
+
+    public void decideIfEnemyMoves(){
+        List<AbstractBlock> movableEnemiesList = defineEnemiesWithinEnemyVisibilityRadius(floorBufferedImage.getListOfFloorEnemyTiles(), player);
+        changeEnemyPosition(movableEnemiesList);
+    }
+
+    public void createEnemy( AbstractPlayer player , ArrayList<AbstractBlock> listOfEnemyTiles, double probability){
+        if (calculateProbability(player.getCurrentHitPoints(), player.getMaxHP(), probability)) {
+            AbstractEnemy enemy = Generator.generateEnemy(player.getLevel(player.getExperiencePoints()));
+            AbstractBlock enemyTile = calculateEnemyCoordinates(player, enemy);
+            enemyTile.setOccupant(enemy);
+            listOfEnemyTiles.add(enemyTile);
         }
     }
 
@@ -269,8 +294,8 @@ public class Window extends JFrame {
         }
     }
 
-    public boolean calculateProbability(int hp, int hpMax) {
-        double ratio = (( (double)hp / hpMax) * 0.8);
+    public boolean calculateProbability(int hp, int hpMax, double probability) {
+        double ratio = (( (double)hp / hpMax) * probability);
         if ( Math.random() <= ratio )
             return true;
         return false;
@@ -335,22 +360,22 @@ public class Window extends JFrame {
 
     public void changeEnemyPosition(List<AbstractBlock> movableEnemiesList) {
         Coordinates playerCoordinates = tower.getCurrentFloor().getEntityCoordinates(player);
-        if (playerCoordinates != null) {
+        if (playerCoordinates != null && movableEnemiesList.size() != 0 ) {
             for (AbstractBlock enemyTile : movableEnemiesList) {
                 ArrayList<Coordinates> neighborCoordinatesList = new ArrayList<>();
-                if(isMovementValid(enemyTile.getCoordinates().getCoordinateX() - 1, enemyTile.getCoordinates().getCoordinateY(), enemyTile.getOccupant())) {
+                if(isMovementValid( - 1, 0, enemyTile.getOccupant())) {
                     var westNeighbor = new Coordinates(enemyTile.getCoordinates().getCoordinateX() - 1, enemyTile.getCoordinates().getCoordinateY());
                     neighborCoordinatesList.add(westNeighbor);
                 }
-                if((isMovementValid(enemyTile.getCoordinates().getCoordinateX() + 1, enemyTile.getCoordinates().getCoordinateY(), enemyTile.getOccupant() ))) {
+                if((isMovementValid( 1, 0, enemyTile.getOccupant() ))) {
                     var eastNeighbor = new Coordinates(enemyTile.getCoordinates().getCoordinateX() + 1, enemyTile.getCoordinates().getCoordinateY());
                     neighborCoordinatesList.add(eastNeighbor);
                 }
-                if(isMovementValid(enemyTile.getCoordinates().getCoordinateX(), enemyTile.getCoordinates().getCoordinateY() - 1, enemyTile.getOccupant())) {
+                if(isMovementValid(0,  - 1, enemyTile.getOccupant())) {
                     var northNeighbor = new Coordinates(enemyTile.getCoordinates().getCoordinateX(), enemyTile.getCoordinates().getCoordinateY() - 1);
                     neighborCoordinatesList.add(northNeighbor);
                 }
-                if(isMovementValid(enemyTile.getCoordinates().getCoordinateX(), enemyTile.getCoordinates().getCoordinateY() + 1, enemyTile.getOccupant() )) {
+                if(isMovementValid(0,  1, enemyTile.getOccupant() )) {
                     var southNeighbor = new Coordinates(enemyTile.getCoordinates().getCoordinateX(), enemyTile.getCoordinates().getCoordinateY() + 1);
                     neighborCoordinatesList.add(southNeighbor);
                 }
@@ -373,38 +398,52 @@ public class Window extends JFrame {
     }
 
     public void playerAttack() {
-       Coordinates playerCoordinates = tower.getCurrentFloor().getEntityCoordinates(player);
+        Coordinates playerCoordinates = tower.getCurrentFloor().getEntityCoordinates(player);
+        List<AbstractBlock> attackableEnemiesList = createAttackableEnemiesList(player);
         if (player instanceof Warrior) {
-            if (playerCoordinates != null) {
-                List<AbstractBlock> enemyNeighborTiles = floorBufferedImage.getListOfFloorEnemyTiles().stream().filter(e ->
-                        calculateMinimumDistance(playerCoordinates.getCoordinateX(), e.getCoordinates().getCoordinateX(), playerCoordinates.getCoordinateY(), e.getCoordinates().getCoordinateY()) == 1).collect(Collectors.toList());
-                Collections.sort(enemyNeighborTiles, new Comparator<AbstractBlock>() {
-                    @Override
-                    public int compare(AbstractBlock abstractBlock1, AbstractBlock abstractBlock2) {
-                        return ((AbstractEnemy) abstractBlock1.getOccupant()).getHitPoints() - ((AbstractEnemy) abstractBlock2.getOccupant()).getHitPoints();
-                    }
-                });
-                if( enemyNeighborTiles.size() != 0) {
-                    engageBattle(enemyNeighborTiles);
-                }
-            }
-        } else if (player instanceof Wizard && player.getCurrentManaPoints() >= 5 && playerCoordinates != null) {
-            player.setCurrentManaPoints(player.getCurrentManaPoints() - 5);
-            List<AbstractBlock> attackableEnemiesList = defineEnemiesWithinPlayerVisibilityRadius(floorBufferedImage.getListOfFloorEnemyTiles(), player);
-            Collections.sort(attackableEnemiesList, Comparator.comparingDouble((AbstractBlock a) -> calculateMinimumDistance(playerCoordinates.getCoordinateX(), a.getCoordinates().getCoordinateX(), playerCoordinates.getCoordinateY(), a.getCoordinates().getCoordinateY())));
             if( attackableEnemiesList.size() != 0) {
+                engageBattle(attackableEnemiesList);
+            }
+        }
+        else if (player instanceof Wizard && player.getCurrentManaPoints() >= 5 && playerCoordinates != null) {
+            if( attackableEnemiesList.size() != 0) {
+                player.setCurrentManaPoints(player.getCurrentManaPoints() - 5);
                 engageBattle(attackableEnemiesList);
             }
         }
     }
 
+
+    public List<AbstractBlock> createAttackableEnemiesList( AbstractPlayer player){
+        Coordinates playerCoordinates = tower.getCurrentFloor().getEntityCoordinates(player);
+        List<AbstractBlock> attackableEnemiesList = new ArrayList<>();
+        if (player instanceof Warrior) {
+            if (playerCoordinates != null) {
+                attackableEnemiesList = floorBufferedImage.getListOfFloorEnemyTiles().stream().filter(e ->
+                        calculateMinimumDistance(playerCoordinates.getCoordinateX(), e.getCoordinates().getCoordinateX(), playerCoordinates.getCoordinateY(), e.getCoordinates().getCoordinateY()) == 1).collect(Collectors.toList());
+                Collections.sort(attackableEnemiesList, new Comparator<AbstractBlock>() {
+                    @Override
+                    public int compare(AbstractBlock abstractBlock1, AbstractBlock abstractBlock2) {
+                        return ((AbstractEnemy) abstractBlock1.getOccupant()).getHitPoints() - ((AbstractEnemy) abstractBlock2.getOccupant()).getHitPoints();
+                    }
+                });
+            }
+        } else if (player instanceof Wizard && playerCoordinates != null) {
+            attackableEnemiesList = defineEnemiesWithinPlayerVisibilityRadius(floorBufferedImage.getListOfFloorEnemyTiles(), player);
+            Collections.sort(attackableEnemiesList, Comparator.comparingDouble((AbstractBlock a) -> calculateMinimumDistance(playerCoordinates.getCoordinateX(), a.getCoordinates().getCoordinateX(), playerCoordinates.getCoordinateY(), a.getCoordinates().getCoordinateY())));
+        }
+        return attackableEnemiesList;
+    }
+
     public void enemyAttack(List<AbstractBlock> attackableEnemiesList) {
-        for(AbstractBlock enemyTile : attackableEnemiesList) {
-            if(player.getCurrentHitPoints() - ((AbstractEnemy)enemyTile.getOccupant()).getWeapon().hitDamageWeapon() > 0)
-                player.setCurrentHitPoints(player.getCurrentHitPoints() - ((AbstractEnemy)enemyTile.getOccupant()).getWeapon().hitDamageWeapon());
-            else{
-                player.setCurrentHitPoints(0);
-                textArea.append("You died");
+        if(attackableEnemiesList.size() != 0) {
+            for (AbstractBlock enemyTile : attackableEnemiesList) {
+                if (player.getCurrentHitPoints() - ((AbstractEnemy) enemyTile.getOccupant()).getWeapon().hitDamageWeapon() > 0)
+                    player.setCurrentHitPoints(player.getCurrentHitPoints() - ((AbstractEnemy) enemyTile.getOccupant()).getWeapon().hitDamageWeapon());
+                else {
+                    player.setCurrentHitPoints(0);
+                    textArea.append("\nYou died");
+                }
             }
         }
     }
@@ -419,12 +458,22 @@ public class Window extends JFrame {
         {
 
             enemyTile.setOccupant(null);
-            System.out.println("xp points before enemy dies "+player.getExperiencePoints());
+
             player.addXP(enemyToAttack.getEnemyXP());
             attackableEnemiesList.remove(enemyTile);
             System.out.println(attackableEnemiesList);
-            System.out.println("xp points after enemy dies "+player.getExperiencePoints());
-            System.out.println("player level after enemy dies "+player.getLevel(player.getExperiencePoints()));
+            if(enemyToAttack instanceof Dragon)
+            {
+                textArea.append("\nYou won.");
+                setVisible(false); //you can't see me!
+                dispose();
+            }
+            else{
+                if (calculateProbability(player.getCurrentHitPoints(), player.getMaxHP(), 0.2)) {
+                    enemyTile.setItem(generatePotions());
+                }
+            }
+
             floorBufferedImage.drawFloor(player);
             map.setIcon(floorBufferedImage.getIcon());
             leftPanel.revalidate();
@@ -432,6 +481,13 @@ public class Window extends JFrame {
         }
 
         enemyAttack(attackableEnemiesList);
+    }
+
+    public void repaint(){
+        floorBufferedImage.drawFloor(player);
+        map.setIcon(floorBufferedImage.getIcon());
+        leftPanel.revalidate();
+        leftPanel.repaint();
     }
 
     public static void main(String[] args) {

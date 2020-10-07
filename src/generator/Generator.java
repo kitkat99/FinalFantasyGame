@@ -82,6 +82,18 @@ public class Generator {
         return listOfFloorItems;
     }
 
+    public static List<Item> generateTraps(){
+        List<Item> listOfFloorTraps = new ArrayList<>();
+
+        for(int i =1; i <= 10; i++){
+            Item randomTrap = new Trap();
+            listOfFloorTraps.add(randomTrap);
+        }
+
+        return listOfFloorTraps;
+    }
+
+
     public static void main(String[] args) {
 
         AbstractEnemy e1 = generateEnemy(3);

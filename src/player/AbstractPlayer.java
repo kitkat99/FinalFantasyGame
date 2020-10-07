@@ -141,7 +141,7 @@ public abstract class AbstractPlayer implements Entity, Subject {
             System.out.println(playerStats());
             if (getMaxHP() - getCurrentHitPoints() > healthPotion.use()) {
                 setCurrentHitPoints(getCurrentHitPoints() + healthPotion.use());
-            } else if (getMaxHP() -getCurrentHitPoints() < healthPotion.use() && getMaxHP() - getCurrentHitPoints() > 0) {
+            } else if (getMaxHP() -getCurrentHitPoints() <= healthPotion.use() && getMaxHP() - getCurrentHitPoints() > 0) {
                 setCurrentHitPoints(getMaxHP());
             }
             Inventory.remove(healthPotion);
@@ -150,12 +150,12 @@ public abstract class AbstractPlayer implements Entity, Subject {
         observers.forEach( x -> notifyObserver(x));
     }
     public void useManaPotion() {
-        HealthPotion manaPotion = (HealthPotion) Inventory.stream().filter(e -> e instanceof ManaPotion).findAny().orElse(null);
+        ManaPotion manaPotion = (ManaPotion) Inventory.stream().filter(e -> e instanceof ManaPotion).findAny().orElse(null);
         if (manaPotion != null) {
             System.out.println(playerStats());
             if (getMaxMana() - getCurrentManaPoints() > manaPotion.use()) {
                 setCurrentManaPoints(getCurrentManaPoints() + manaPotion.use());
-            } else if (getMaxMana() -getCurrentManaPoints() < manaPotion.use() && getMaxMana() - getCurrentManaPoints() > 0) {
+            } else if (getMaxMana() -getCurrentManaPoints() <= manaPotion.use() && getMaxMana() - getCurrentManaPoints() > 0) {
                 setCurrentManaPoints(getMaxMana());
             }
             Inventory.remove(manaPotion);
@@ -163,6 +163,20 @@ public abstract class AbstractPlayer implements Entity, Subject {
         }
         observers.forEach( x -> notifyObserver(x));
     }
+
+    public void useTrap( Trap trap) {
+        if (trap != null) {
+            System.out.println(playerStats());
+            if (getCurrentHitPoints() + trap.use() <= 0)
+                setCurrentHitPoints(0);
+            else
+                setCurrentHitPoints(getCurrentHitPoints() + trap.use());
+            System.out.println(playerStats());
+        }
+        observers.forEach( x -> notifyObserver(x));
+    }
+
+
 
     public boolean isItemEquipped(Item item) {
         List<Item> equippedItems = new ArrayList<>();

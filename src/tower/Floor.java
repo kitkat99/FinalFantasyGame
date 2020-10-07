@@ -4,6 +4,9 @@ package tower;
 import Entity.Entity;
 import enemies.AbstractEnemy;
 import items.Item;
+import items.Trap;
+import states.Unknown;
+import states.Visible;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,6 +53,18 @@ public class Floor {
                 tempBlock = floor[currentX][currentY];
             }
             tempBlock.setItem(item);
+        }
+    }
+
+    public void defineBlockState(AbstractBlock block){
+        if(block.isVisible){
+            block.setStateBlock(block.getVisible());
+        }
+        else if(block.hasBeenStepped && !block.isVisible){
+            block.setStateBlock(block.getFogged());
+        }
+        else if(!block.hasBeenStepped){
+            block.setStateBlock(block.getUnknown());
         }
     }
 
@@ -147,41 +162,61 @@ public class Floor {
 
 
     public void drawFloor(Entity entity) {
-        ArrayList<AbstractBlock> visibleTiles = calculateVisibleTiles(entity);
+
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[j].length; j++) {
-                if (floor[i][j] instanceof Wall) {
-                    drawWall(i, j);
-                } else {
-                    if (floor[i][j] instanceof Entrance) {
-                        drawEntrance(i, j);
-                    } else if (floor[i][j] instanceof Tile) {
-                        drawTile(i, j);
-                        if(visibleTiles.contains(floor[i][j]))
-                            drawVisibleByPlayerTiles(i, j);
-                        if(floor[i][j].hasItem() == true){
-                            drawItem(i, j);
-                        }
-                        if(floor[i][j].isOccupiedByEnemy() == true){
-                            drawEnemy(i, j, (AbstractEnemy) floor[i][j].getOccupant());
-                        }
-                    } else if (floor[i][j] instanceof Exit) {
-                        drawExit(i, j);
+                if(entity != null) {
+                    if ((Math.abs(getEntityCoordinates(entity).getCoordinateX() - floor[i][j].getCoordinates().getCoordinateX())) +
+                            ((Math.abs(getEntityCoordinates(entity).getCoordinateY() - floor[i][j].getCoordinates().getCoordinateY()))) < 6) {
+                        floor[i][j].isVisible = true;
                     }
-                    if (floor[i][j].isOccupiedByPlayer()) {
-                        drawPlayer(i, j);
+                    else if((Math.abs(getEntityCoordinates(entity).getCoordinateX() - floor[i][j].getCoordinates().getCoordinateX())) +
+                            ((Math.abs(getEntityCoordinates(entity).getCoordinateY() - floor[i][j].getCoordinates().getCoordinateY()))) > 6 && floor[i][j].isVisible == true){
+                        floor[i][j].hasBeenStepped = true;
+                        floor[i][j].isVisible = false;
+                    }
+                }
+                defineBlockState(floor[i][j]);
+                if (!(floor[i][j].getStateBlock() instanceof Unknown)) {
+                    if (floor[i][j] instanceof Wall) {
+                        drawWall(i, j);
+                    } else {
+                        if (floor[i][j] instanceof Entrance) {
+                            drawEntrance(i, j);
+                        } else if (floor[i][j] instanceof Tile) {
+                            drawTile(i, j, floor[i][j].getStateBlock().stateColor());
+//                            if (floor[i][j].getStateBlock() instanceof Visible)
+//                                drawVisibleByPlayerTiles(i, j);
+                            if (floor[i][j].hasItem() == true && !(floor[i][j].getItem() instanceof Trap)) {
+                                drawItem(i, j);
+                            }
+                            if (floor[i][j].hasItem() == true && (floor[i][j].getItem() instanceof Trap)) {
+                                drawTrap(i, j, floor[i][j].getStateBlock().stateColor());
+                            }
+                            if (floor[i][j].isOccupiedByEnemy() == true) {
+                                drawEnemy(i, j, (AbstractEnemy) floor[i][j].getOccupant());
+                            }
+                        } else if (floor[i][j] instanceof Exit) {
+                            drawExit(i, j);
+                        }
+                        if (floor[i][j].isOccupiedByPlayer()) {
+                            drawPlayer(i, j);
+                        }
+
                     }
 
                 }
+                else{
 
+                }
             }
         }
     }
 
-    private void drawTile(int i, int j) {
+    private void drawTile(int i, int j, Color color) {
         g2.setColor(new Color(100, 60, 40));
         g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        g2.setColor(new Color(150, 60, 60));
+        g2.setColor(color);
         g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
     }
 
@@ -199,6 +234,10 @@ public class Floor {
     private void drawItem(int i, int j) {
         g2.setColor(new Color(30, 250, 30));
         g2.fillRect(i * TILE_SIZE+TILE_SIZE-3, j * TILE_SIZE, 4, 4);
+    }
+    private void drawTrap(int i, int j, Color color) {
+        g2.setColor(color);
+        g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
     }
     private void drawEnemy(int i, int j, AbstractEnemy enemy) {
         g2.setColor(enemy.getColor());
@@ -285,18 +324,17 @@ public class Floor {
         return (int) (Math.random() * ((upperBound) + 1));
     }
 
-    public ArrayList<AbstractBlock> calculateVisibleTiles(Entity entity) {
+    public void calculateVisibleTiles(Entity entity) {
         ArrayList<AbstractBlock> visibleTilesList = new ArrayList<AbstractBlock>();
         if(getEntityCoordinates(entity) != null) {
             for (int i = 0; i < floor.length; i++) {
                 for (int j = 0; j < floor[j].length; j++) {
                     if ((Math.abs(getEntityCoordinates(entity).getCoordinateX() - floor[i][j].getCoordinates().getCoordinateX())) +
                             ((Math.abs(getEntityCoordinates(entity).getCoordinateY() - floor[i][j].getCoordinates().getCoordinateY()))) < 6) {
-                        visibleTilesList.add(floor[i][j]);
+                        floor[i][j].isVisible = true;
                     }
                 }
             }
         }
-        return visibleTilesList;
     }
 }

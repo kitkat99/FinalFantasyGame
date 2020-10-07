@@ -8,9 +8,21 @@ import items.Item;
 import items.Trap;
 import items.Usable;
 import player.AbstractPlayer;
+import states.Fogged;
+import states.StateBlock;
+import states.Unknown;
+import states.Visible;
+
+import java.awt.*;
 
 
 public abstract class AbstractBlock {
+    StateBlock stateBlock;
+    StateBlock Unknown;
+    StateBlock Fogged;
+    StateBlock Visible;
+    Boolean hasBeenStepped = false;
+    Boolean isVisible = false;
     Coordinates Coordinates;
     private boolean isWalkable;
     private Entity Occupant;
@@ -57,7 +69,36 @@ public abstract class AbstractBlock {
     public AbstractBlock(Coordinates coordinates, boolean IsWalkable) {
         Coordinates = coordinates;
         isWalkable = IsWalkable;
+        Unknown = new Unknown(this);
+        Fogged = new Fogged(this);
+        Visible = new Visible(this);
+        stateBlock = Unknown;
     }
+
+    public void setStateBlock(StateBlock stateBlock) {
+        this.stateBlock = stateBlock;
+    }
+
+    public StateBlock getFogged() {
+        return Fogged;
+    }
+
+    public StateBlock getUnknown() {
+        return Unknown;
+    }
+
+    public StateBlock getVisible() {
+        return Visible;
+    }
+
+    public Color stateColor(){
+        return stateBlock.stateColor();
+    }
+
+    public StateBlock getStateBlock() {
+        return stateBlock;
+    }
+
     public boolean hasItem(){
         return item != null;
     }
