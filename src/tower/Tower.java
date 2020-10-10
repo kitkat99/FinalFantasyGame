@@ -78,20 +78,20 @@ private AbstractPlayer player;
 
     }
 
-//    public void
-//    {
-//
-//            int currentX = floors.get(9).randomgenenerator((int) (floors.get(9).X_DIMENSION - 1));
-//            int currentY = floors.get(9).randomgenenerator((int) (floors.get(9).Y_DIMENSION - 1));
-//            AbstractBlock tempBlock = floors.get(9).getFloor()[currentX][currentY];
-//            while(!(tempBlock instanceof Tile)){
-//                currentX = floors.get(9).randomgenenerator((int) (floors.get(9).X_DIMENSION - 1));
-//                currentY = floors.get(9).randomgenenerator((int) (floors.get(9).Y_DIMENSION - 1));
-//                tempBlock = floors.get(9).getFloor()[currentX][currentY];
-//            }
-//        floors.get(9).setEntityCoordinates(currentX,currentY, dragon);
-//
-//    }
+    public void setDragon()
+    {
+
+            int currentX = floors.get(9).randomgenenerator((int) (floors.get(9).X_DIMENSION - 1));
+            int currentY = floors.get(9).randomgenenerator((int) (floors.get(9).Y_DIMENSION - 1));
+            AbstractBlock tempBlock = floors.get(9).getFloor()[currentX][currentY];
+            while(!(tempBlock instanceof Tile) && tempBlock.isOccupiedByEnemy()){
+                currentX = floors.get(9).randomgenenerator((int) (floors.get(9).X_DIMENSION - 1));
+                currentY = floors.get(9).randomgenenerator((int) (floors.get(9).Y_DIMENSION - 1));
+                tempBlock = floors.get(9).getFloor()[currentX][currentY];
+            }
+        floors.get(9).setEntityCoordinates(currentX,currentY, dragon);
+
+    }
 
     public void goToNextFloor() {
         try {
@@ -105,6 +105,9 @@ private AbstractPlayer player;
         var tempFloor = floors.get(floors.indexOf(currentFloor));
         tempFloor.getListOfFloorEnemyTiles().stream().filter(x -> !(x.getOccupant() instanceof Dragon)).forEach(e -> e.setOccupant(null));
         setCurrentFloor(floors.get(floors.indexOf(tempFloor) + 1));
+        if(getFloorNumber(currentFloor) == 9){
+            setDragon();
+        }
     }
 
     public Tower(AbstractPlayer player) {
@@ -114,6 +117,7 @@ private AbstractPlayer player;
         this.player = player;
         generateItems();
         generateTraps();
+        setDragon();
     }
 
     public void generateItems() {

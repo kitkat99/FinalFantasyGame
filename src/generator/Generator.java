@@ -92,33 +92,5 @@ public class Generator {
 
         return listOfFloorTraps;
     }
-
-
-    public static void main(String[] args) {
-
-        AbstractEnemy e1 = generateEnemy(3);
-        AbstractEnemy e2 = generateEnemy(3);
-        AbstractEnemy e3 = generateEnemy(3);
-        System.out.println(e1);
-        System.out.println(e2);
-        System.out.println(e3);
-        System.out.println(e1.equals(e2));
-        System.out.println(e1.equals(e3));
-        System.out.println(e3.equals(e2));
-        Wizard kat = new Wizard("Kat");
-        int amountOfGamePotions = ThreadLocalRandom.current().nextInt(20, 30);
-        int counter = 0;
-        List<Usable> listOfGamePotions = new ArrayList<Usable>();
-        while (counter < amountOfGamePotions) {
-            Usable tempPotion = generatePotions();
-            listOfGamePotions.add(tempPotion);
-            counter++;
-        }
-        System.out.println(listOfGamePotions);
-
-        for(int i=0; i<=9; i++) {
-            System.out.println(createItemList(i, kat));
-        }
-    }
 }
 

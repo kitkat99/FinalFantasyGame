@@ -5,7 +5,7 @@ import java.util.List;
 public class Trap implements Usable {
     private final String itemName = "Trap";
 
-    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.HP_REPLENISH, -5));;
+    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.HP_REPLENISH, -5));
 
     public String getItemName() {
         return itemName;

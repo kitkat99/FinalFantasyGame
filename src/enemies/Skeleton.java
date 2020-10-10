@@ -13,9 +13,9 @@ public class Skeleton extends AbstractEnemy {
     public Skeleton(){
 
         super(List.of(3,4,5),"Skeleton", 20, skeletonWeapon, 100, 4,new Color(240, 144, 250) );
-    };
+    }
 
     public int calculateDamageTaken( int WeaponDamage){
         return WeaponDamage;
-    };
+    }
 }

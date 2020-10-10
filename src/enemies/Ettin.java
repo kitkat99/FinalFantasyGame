@@ -13,9 +13,9 @@ public class Ettin extends AbstractEnemy {
     public Ettin(){
 
         super(List.of(4,5,6),"Ettin", 60, ettinWeapon, 150, 9 ,new Color(21, 129, 250));
-    };
+    }
 
     public int calculateDamageTaken( int WeaponDamage){
         return WeaponDamage;
-    };
+    }
 }

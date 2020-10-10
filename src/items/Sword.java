@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Sword extends AbstractWeapon {
     private final String itemName = "Sword";
-    private List<ItemEffect> itemEffectsList = List.of(new ItemEffect(EffectType.HP_BOOST, getHpBoost()), new ItemEffect(EffectType.STRENGTH_BOOST, getStrengthBoost()));;
+    private List<ItemEffect> itemEffectsList = List.of(new ItemEffect(EffectType.HP_BOOST, getHpBoost()), new ItemEffect(EffectType.STRENGTH_BOOST, getStrengthBoost()));
 
     public Sword(String weaponDescription, int amountFirstEffect, int amountSecondEffect) {
         super(weaponDescription, amountFirstEffect, amountSecondEffect);

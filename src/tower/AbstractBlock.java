@@ -112,20 +112,13 @@ public abstract class AbstractBlock {
 
     public boolean IsItemPotion(){
         if (item instanceof Usable){
-            if(item instanceof Trap )
-                return false;
-            else
-                return true;
+            return !(item instanceof Trap);
         }
         else
             return false;
     }
     public boolean IsItemEquippable(){
-        if (item instanceof Equippable){
-            return true;
-        }
-        else
-            return false;
+        return item instanceof Equippable;
     }
 
     public void setItem(Item item) {

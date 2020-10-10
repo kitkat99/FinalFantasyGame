@@ -10,7 +10,8 @@ public class Dice {
         this.diceBonus = diceBonus;
         this.numberDicesEdges = numberDicesEdges;
         this.numberOfDices = numberOfDices;
-    };
+    }
+
     /**
      *  Roll the dice and return random number between 1 and 20
      */

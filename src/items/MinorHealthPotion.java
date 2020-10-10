@@ -4,7 +4,7 @@ import java.util.List;
 
 public class MinorHealthPotion implements Usable {
     private final String itemName = "Minor Health Potion";
-    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.HP_REPLENISH, 5));;
+    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.HP_REPLENISH, 5));
 
     public String getItemName() {
         return itemName;

@@ -81,7 +81,6 @@ public class Floor {
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[0].length; j++) {
                 if (floor[i][j].getOccupant() != null && floor[i][j].getOccupant().equals(entity)) {
-                    //System.out.println(i + " " + j + "is occupied");
                     return floor[i][j].getCoordinates();
                 }
             }
@@ -93,7 +92,6 @@ public class Floor {
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[0].length; j++) {
                 if (floor[i][j].getOccupant() != null && floor[i][j].getOccupant().equals(entity)) {
-                   // System.out.println(i + " " + j + "is occupied");
                     floor[i][j].setOccupant(null);
                 }
             }
@@ -101,8 +99,8 @@ public class Floor {
         floor[x][y].setOccupant(entity);
     }
 
-    public List<AbstractBlock> getListOfFloorEnemyTiles() {
-        List<AbstractBlock> listOfFloorEnemyTiles = new ArrayList<>();
+    public ArrayList<AbstractBlock> getListOfFloorEnemyTiles() {
+        ArrayList<AbstractBlock> listOfFloorEnemyTiles = new ArrayList<>();
         for (int i = 0; i < floor.length; i++) {
             for (int j = 0; j < floor[0].length; j++) {
                 if (floor[i][j].getOccupant() != null && floor[i][j].getOccupant() instanceof AbstractEnemy) {
@@ -177,7 +175,7 @@ public class Floor {
                     }
                 }
                 defineBlockState(floor[i][j]);
-                if (!(floor[i][j].getStateBlock() instanceof Unknown)) {
+                //if (!(floor[i][j].getStateBlock() instanceof Unknown)) {
                     if (floor[i][j] instanceof Wall) {
                         drawWall(i, j);
                     } else {
@@ -185,8 +183,7 @@ public class Floor {
                             drawEntrance(i, j);
                         } else if (floor[i][j] instanceof Tile) {
                             drawTile(i, j, floor[i][j].getStateBlock().stateColor());
-//                            if (floor[i][j].getStateBlock() instanceof Visible)
-//                                drawVisibleByPlayerTiles(i, j);
+
                             if (floor[i][j].hasItem() == true && !(floor[i][j].getItem() instanceof Trap)) {
                                 drawItem(i, j);
                             }
@@ -205,10 +202,12 @@ public class Floor {
 
                     }
 
-                }
-                else{
-
-                }
+                //}
+//                else{
+//                    g2.setColor(floor[i][j].getStateBlock().stateColor());
+//                    g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+////
+//                }
             }
         }
     }
@@ -217,13 +216,6 @@ public class Floor {
         g2.setColor(new Color(100, 60, 40));
         g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         g2.setColor(color);
-        g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
-    }
-
-    private void drawVisibleByPlayerTiles(int i, int j) {
-        g2.setColor(new Color(100, 60, 40));
-        g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        g2.setColor(new Color(180, 100, 100));
         g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
     }
 
@@ -308,12 +300,6 @@ public class Floor {
 
     public double getY_DIMENSION() {
         return Y_DIMENSION;
-    }
-
-    public void print2D(String mat[][]) {
-        // Loop through all rows
-        for (String[] row : mat)
-            System.out.println(Arrays.toString(row)); // and then printing in a separate line // converting each row as string
     }
 
     public ImageIcon getIcon() {

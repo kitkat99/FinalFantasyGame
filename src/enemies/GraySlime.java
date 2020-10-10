@@ -13,9 +13,9 @@ public class GraySlime extends AbstractEnemy {
     public GraySlime(){
 
         super(List.of(2,3),"GraySlime", 30, graySlimeWeapon, 80, 2, new Color(250, 111, 103) );
-    };
+    }
 
     public int calculateDamageTaken( int WeaponDamage){
         return WeaponDamage;
-    };
+    }
 }

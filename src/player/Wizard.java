@@ -25,7 +25,7 @@ public class Wizard extends AbstractPlayer {
 
     @Override
     public int getAttackDamage() {
-        return getBoostfromEquippedItems(EffectType.INTELLECT_BOOST);
+        return getLevelInt() + getBoostfromEquippedItems(EffectType.INTELLECT_BOOST);
     }
 
 

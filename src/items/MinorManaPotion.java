@@ -5,7 +5,7 @@ import java.util.List;
 public class MinorManaPotion implements Usable {
 
     private final String itemName = "Minor Mana Potion";
-    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.MANA_REPLENISH, 5));;
+    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.MANA_REPLENISH, 5));
 
     public String getItemName() {
         return itemName;

@@ -100,12 +100,12 @@ public abstract class AbstractPlayer implements Entity, Subject {
     public void rest() {
         if (getMaxHP() - getCurrentHitPoints() > 4) {
             setCurrentHitPoints(getCurrentHitPoints() + 4);
-        } else if (getMaxHP() - getCurrentHitPoints() < 4 && getMaxHP() - getCurrentHitPoints() > 0) {
+        } else if (getMaxHP() - getCurrentHitPoints() <= 4 && getMaxHP() - getCurrentHitPoints() > 0) {
             setCurrentHitPoints(getMaxHP());
         }
         if (getMaxMana() - getCurrentManaPoints() > 4) {
             setCurrentManaPoints(getCurrentManaPoints() + 4);
-        } else if (getMaxMana() - getCurrentManaPoints() < 4 && getMaxMana() - getCurrentManaPoints() > 0) {
+        } else if (getMaxMana() - getCurrentManaPoints() <= 4 && getMaxMana() - getCurrentManaPoints() > 0) {
             setCurrentManaPoints(getMaxMana());
         }
         observers.forEach( x -> notifyObserver(x));
@@ -129,49 +129,59 @@ public abstract class AbstractPlayer implements Entity, Subject {
     public void drop(Item item) {
         if (!isItemEquipped(item))
             Inventory.remove(item);
-        else {
-            System.out.println("Cannot drop the item, it is equipped");
-        }
         observers.forEach( x -> notifyObserver(x));
     }
 
     public void useHealthPotion() {
         HealthPotion healthPotion = (HealthPotion) Inventory.stream().filter(e -> e instanceof HealthPotion).findAny().orElse(null);
-        if (healthPotion != null) {
-            System.out.println(playerStats());
-            if (getMaxHP() - getCurrentHitPoints() > healthPotion.use()) {
-                setCurrentHitPoints(getCurrentHitPoints() + healthPotion.use());
-            } else if (getMaxHP() -getCurrentHitPoints() <= healthPotion.use() && getMaxHP() - getCurrentHitPoints() > 0) {
-                setCurrentHitPoints(getMaxHP());
-            }
-            Inventory.remove(healthPotion);
-            System.out.println(playerStats());
-        }
+        calculateHealthPoints(healthPotion);
         observers.forEach( x -> notifyObserver(x));
     }
+    public void useMinorHealthPotion() {
+        MinorHealthPotion minorHealthPotion = (MinorHealthPotion) Inventory.stream().filter(e -> e instanceof MinorHealthPotion).findAny().orElse(null);
+        calculateHealthPoints(minorHealthPotion);
+        observers.forEach( x -> notifyObserver(x));
+    }
+
     public void useManaPotion() {
         ManaPotion manaPotion = (ManaPotion) Inventory.stream().filter(e -> e instanceof ManaPotion).findAny().orElse(null);
-        if (manaPotion != null) {
-            System.out.println(playerStats());
-            if (getMaxMana() - getCurrentManaPoints() > manaPotion.use()) {
-                setCurrentManaPoints(getCurrentManaPoints() + manaPotion.use());
-            } else if (getMaxMana() -getCurrentManaPoints() <= manaPotion.use() && getMaxMana() - getCurrentManaPoints() > 0) {
+        calculateManaPoints(manaPotion);
+        observers.forEach( x -> notifyObserver(x));
+    }
+    public void useMinorManaPotion() {
+        MinorManaPotion minorManaPotion = (MinorManaPotion) Inventory.stream().filter(e -> e instanceof MinorManaPotion).findAny().orElse(null);
+        calculateManaPoints(minorManaPotion);
+        observers.forEach( x -> notifyObserver(x));
+    }
+
+    public void calculateHealthPoints(Usable potion){
+        if (potion != null) {
+            if (getMaxHP() - getCurrentHitPoints() > potion.use()) {
+                setCurrentHitPoints(getCurrentHitPoints() + potion.use());
+            } else if (getMaxHP() -getCurrentHitPoints() <= potion.use() && getMaxHP() - getCurrentHitPoints() > 0) {
+                setCurrentHitPoints(getMaxHP());
+            }
+            Inventory.remove(potion);
+        }
+    }
+
+    public void calculateManaPoints(Usable potion){
+        if (potion != null) {
+            if (getMaxMana() - getCurrentManaPoints() > potion.use()) {
+                setCurrentManaPoints(getCurrentManaPoints() + potion.use());
+            } else if (getMaxMana() -getCurrentManaPoints() <= potion.use() && getMaxMana() - getCurrentManaPoints() > 0) {
                 setCurrentManaPoints(getMaxMana());
             }
-            Inventory.remove(manaPotion);
-            System.out.println(playerStats());
+            Inventory.remove(potion);
         }
-        observers.forEach( x -> notifyObserver(x));
     }
 
     public void useTrap( Trap trap) {
         if (trap != null) {
-            System.out.println(playerStats());
             if (getCurrentHitPoints() + trap.use() <= 0)
                 setCurrentHitPoints(0);
             else
                 setCurrentHitPoints(getCurrentHitPoints() + trap.use());
-            System.out.println(playerStats());
         }
         observers.forEach( x -> notifyObserver(x));
     }

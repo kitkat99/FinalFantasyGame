@@ -15,9 +15,9 @@ public class Wyrm extends AbstractEnemy {
     public Wyrm(){
 
         super(List.of(5,6),"Wyrm", 80, wyrmWeapon, 200, 5,new Color(250, 188, 24) );
-    };
+    }
 
     public int calculateDamageTaken( int WeaponDamage){
         return WeaponDamage;
-    };
+    }
 }

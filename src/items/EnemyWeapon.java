@@ -7,7 +7,7 @@ import java.util.List;
 
 public class EnemyWeapon extends AbstractWeapon {
     private final String itemName = "Enemy Weapon";
-    private List<ItemEffect> itemEffectsList = List.of(new ItemEffect(EffectType.NONE, 0));;
+    private List<ItemEffect> itemEffectsList = List.of(new ItemEffect(EffectType.NONE, 0));
 
     public EnemyWeapon(String weaponName, String weaponDescription, Dice dice ) {
         super(weaponName, weaponDescription, dice );

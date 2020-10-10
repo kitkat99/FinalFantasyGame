@@ -11,9 +11,10 @@ public class OrcGrunt extends AbstractEnemy {
 
     public OrcGrunt(){
         super(List.of(3,4,5),"OrcGrunt", 40, orcWeapon, 100,6, new Color(250, 110, 53));
-    };
+    }
+
     public int calculateDamageTaken( int WeaponDamage){
             return WeaponDamage;
-    };
+    }
 
 }

@@ -5,7 +5,7 @@ import java.util.List;
 public class ManaPotion implements Usable {
 
     private final String itemName = "Mana Potion";
-    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.MANA_REPLENISH, 20));;
+    private List<ItemEffect> itemEffectsList = List.of( new ItemEffect(EffectType.MANA_REPLENISH, 20));
 
     public String getItemName() {
         return itemName;

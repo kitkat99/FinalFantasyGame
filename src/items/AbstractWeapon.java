@@ -18,18 +18,20 @@ public abstract class AbstractWeapon implements Equippable{
         this.weaponDescription = weaponDescription;
         this.hpBoost = hpBoost;
         this.strengthBoost = strengthBoost;
-    };
+    }
+
     public AbstractWeapon( String weaponDescription, int hpBoost, int mpBoost, int intellectBoost){
         this.weaponDescription = weaponDescription;
         this.hpBoost = hpBoost;
         this.mpBoost = mpBoost;
         this.intellectBoost = intellectBoost;
-    };
+    }
+
     public AbstractWeapon(String weaponName, String weaponDescription, Dice rollDiceWeapon ){
         RollDiceWeapon = rollDiceWeapon;
         this.weaponName = weaponName;
         this.weaponDescription = weaponDescription;
-    };
+    }
 
     public int getHpBoost() {
         return hpBoost;
@@ -77,6 +79,6 @@ public abstract class AbstractWeapon implements Equippable{
     public abstract String getItemName() ;
 
     public String toString(){
-        return getWeaponDescription() +" "+ getItemName() +" "+ getItemEffects().toString();
+        return getWeaponDescription() +" "+ getItemName() +" with Weapon Boosts  "+ getItemEffects().toString();
     }
 }

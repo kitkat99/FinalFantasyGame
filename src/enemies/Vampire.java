@@ -13,10 +13,10 @@ public class Vampire extends AbstractEnemy {
     public Vampire(){
 
         super(List.of(5,6),"Vampire", 50, vampireWeapon, 400, 10,new Color(143, 26, 250) );
-    };
+    }
 
     public int calculateDamageTaken( int WeaponDamage){
         return WeaponDamage;
-    };
+    }
 
 }
