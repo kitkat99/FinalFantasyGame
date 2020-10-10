@@ -175,7 +175,7 @@ public class Floor {
                     }
                 }
                 defineBlockState(floor[i][j]);
-                //if (!(floor[i][j].getStateBlock() instanceof Unknown)) {
+                if (!(floor[i][j].getStateBlock() instanceof Unknown)) {
                     if (floor[i][j] instanceof Wall) {
                         drawWall(i, j);
                     } else {
@@ -202,12 +202,12 @@ public class Floor {
 
                     }
 
-                //}
-//                else{
-//                    g2.setColor(floor[i][j].getStateBlock().stateColor());
-//                    g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-////
-//                }
+                }
+                else{
+                    g2.setColor(floor[i][j].getStateBlock().stateColor());
+                    g2.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+//
+                }
             }
         }
     }
